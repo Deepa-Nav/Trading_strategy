@@ -1,5 +1,5 @@
-                                    # W - Pattern Bollinger Band Trading_strategy
-                                                ****Abstract****
+# W - Pattern Bollinger Band Trading_strategy
+                                                
 This research provides the trading strategy using the Bollinger Bands, a widely acclaimed 
 technical analysis tool, that has become an indispensable asset for traders seeking to navigate the 
 turbulent waters of financial markets. These bands offer a unique perspective on price volatility, helping 
@@ -30,7 +30,7 @@ Lower Band – 20 Day Simple Moving Average - (Standard Deviation x 2)
 
 **W PATTERN STRATEGY** : The formation’s first bottom is characterized by a sharp price pullback that 
 closes outside of the lower Bollinger Band. These kinds of moves usually result in what is known as an 
-“automatic rally.” The automatic rally’s high usually serves as the first level of resistance in the basebuilding process before the stock moves higher. After the rally begins, the price attempts to retest the 
+“automatic rally.” The automatic rally’s high usually serves as the first level of resistance in the base building process before the stock moves higher. After the rally begins, the price attempts to retest the 
 most recent lows in order to test the strength of the buying pressure that came in at that bottom. The 5 
 nodes of the W shape has certain conditions set that determines when to enter and exit the trade.
 
