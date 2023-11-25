@@ -1,4 +1,4 @@
-# W - Pattern Bollinger Band Trading_strategy
+                                    # W - Pattern Bollinger Band Trading_strategy
                                                 ****Abstract****
 This research provides the trading strategy using the Bollinger Bands, a widely acclaimed 
 technical analysis tool, that has become an indispensable asset for traders seeking to navigate the 
