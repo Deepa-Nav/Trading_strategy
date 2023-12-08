@@ -80,3 +80,5 @@ signals.
 • The 'W' shape is then plotted in a thicker line with a pink color.
 6. **Displaying the Plot**:
 • The plot is displayed using plt.show()
+
+

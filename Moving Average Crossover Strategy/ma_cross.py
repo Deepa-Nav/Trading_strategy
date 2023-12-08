@@ -4,6 +4,8 @@ import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import datetime
+import yfinance as yf
 
 from pandas_datareader import DataReader
 from backtest import Strategy, Portfolio
@@ -17,7 +19,7 @@ class MovingAverageCrossoverStrategy(Strategy):
     long_window - Lookback period for long moving average.
     """
     
-    def init(self,symbol,bars,short_window=100,long_window=400):
+    def __init__(self,symbol,bars,short_window=100,long_window=400):
         self.symbol = symbol
         self.bars = bars
         self.short_window = short_window
@@ -31,8 +33,8 @@ class MovingAverageCrossoverStrategy(Strategy):
         signals['signal'] = 0.0
         
         # Create a set of short and long simple moving averages
-        signals['short_ma'] = pd.rolling_mean(self.bars['Close'],self.short_window,min_periods = 1)
-        signals['long_ma'] = pd.rolling_mean(self.bars['Close'],self.long_window,min_periods = 1)
+        signals['short_ma'] = self.bars['Close'].rolling(window = self.short_window, min_periods = 1 ).mean()
+        signals['long_ma'] = self.bars['Close'].rolling(window = self.long_window,min_periods = 1).mean()
         
         # Create a 'signal' (invested or not invested) when the short moving average crosses the long
         # moving average, but only for the period greater than the shortest moving average window
@@ -55,7 +57,7 @@ class MarketOnClosePortfolio(Portfolio):
     signals - Dataframe of signals that inculde (1,0,-1) for long, hold and short respectively
     initial_investment - The amount in cash at the start of the portfolio
     '''
-    def init(self,symbol,bars,signals,initial_investment= 100000.0):
+    def __init__(self,symbol,bars,signals,initial_investment= 100000.0):
         self.symbol = symbol
         self.bars = bars
         self.signals = signals
@@ -63,8 +65,8 @@ class MarketOnClosePortfolio(Portfolio):
         self.positions = self.generate_positions()
         
     def generate_positions(self):
-        positions = pd.DataFrame(index = self.signals.index).fillna(0.0)
-        positions[self.symbol] = 100*self.signals['signal']
+        positions = pd.DataFrame(index = self.signals.index).reset_index(drop=True).fillna(0.0)
+        positions['AAPL'] = 100*self.signals['signal']
         return positions
     
     def backtest_portfolio(self):
@@ -79,8 +81,9 @@ class MarketOnClosePortfolio(Portfolio):
         
         
 if __name__ == "__main__":
-    symbol = 'AAPL'
-    bars = DataReader(symbol,"yahoo",datetime.datetime(1990,1,1),datetime.datetime(2002,1,1))
+    symbol = "AAPL"
+    bars = yf.download(symbol, datetime.datetime(1990,1,1), datetime.datetime(2002,1,1))
+    print(bars.head())
     # Create a Moving Average Cross Strategy instance with a short moving
     # average window of 100 days and a long window of 400 days
     mac = MovingAverageCrossoverStrategy(symbol,bars,short_window = 100,long_window = 400)
@@ -97,16 +100,16 @@ if __name__ == "__main__":
       
     # Plot the AAPL closing price overlaid with the moving averages
     bars['Close'].plot(ax=ax1, color='r', lw=2.)
-    signals[['short_mavg', 'long_mavg']].plot(ax=ax1, lw=2.)
+    signals[['short_ma', 'long_ma']].plot(ax=ax1, lw=2.)
 
     # Plot the "buy" trades against AAPL
-    ax1.plot(signals.ix[signals.positions == 1.0].index, 
-             signals.short_mavg[signals.positions == 1.0],
+    ax1.plot(signals.index[signals.positions == 1.0], 
+             signals.short_ma[signals.positions == 1.0],
              '^', markersize=10, color='m')
 
     # Plot the "sell" trades against AAPL
-    ax1.plot(signals.ix[signals.positions == -1.0].index, 
-             signals.short_mavg[signals.positions == -1.0],
+    ax1.plot(signals.index[signals.positions == -1.0], 
+             signals.short_ma[signals.positions == -1.0],
              'v', markersize=10, color='k')
 
     # Plot the equity curve in dollars
@@ -114,15 +117,15 @@ if __name__ == "__main__":
     returns['total'].plot(ax=ax2, lw=2.)
 
     # Plot the "buy" and "sell" trades against the equity curve
-    ax2.plot(returns.ix[signals.positions == 1.0].index, 
+    ax2.plot(returns.index[signals.positions == 1.0], 
              returns.total[signals.positions == 1.0],
              '^', markersize=10, color='m')
-    ax2.plot(returns.ix[signals.positions == -1.0].index, 
+    ax2.plot(returns.index[signals.positions == -1.0], 
              returns.total[signals.positions == -1.0],
              'v', markersize=10, color='k')
 
     # Plot the figure
-    fig.show()
+    fig.savefig('output_figure.png')
     
     
     
