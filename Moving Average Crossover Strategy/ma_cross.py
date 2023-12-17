@@ -4,8 +4,10 @@ import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import datetime
+import datetime as dt
 import yfinance as yf
+import quantstats as qs
+import pyfolio as pf
 
 from pandas_datareader import DataReader
 from backtest import Strategy, Portfolio
@@ -65,7 +67,7 @@ class MarketOnClosePortfolio(Portfolio):
         self.positions = self.generate_positions()
         
     def generate_positions(self):
-        positions = pd.DataFrame(index = self.signals.index).reset_index(drop=True).fillna(0.0)
+        positions = pd.DataFrame(index=self.signals.index).fillna(0.0)
         positions['AAPL'] = 100*self.signals['signal']
         return positions
     
@@ -77,12 +79,16 @@ class MarketOnClosePortfolio(Portfolio):
         
         portfolio['total'] = portfolio['cash']+portfolio['holdings']
         portfolio['returns'] = portfolio['total'].pct_change()
+        portfolio['returns'].plot(figsize=(12,8),grid=True)
+        plt.show()
         return portfolio
         
         
 if __name__ == "__main__":
     symbol = "AAPL"
-    bars = yf.download(symbol, datetime.datetime(1990,1,1), datetime.datetime(2002,1,1))
+    end_date = dt.datetime(2023,11,5).date()
+    start_date =end_date - dt.timedelta(days = 365*5)
+    bars = yf.download(symbol, start_date, end_date)
     print(bars.head())
     # Create a Moving Average Cross Strategy instance with a short moving
     # average window of 100 days and a long window of 400 days
@@ -92,6 +98,9 @@ if __name__ == "__main__":
     # Create a portfolio of AAPL, with $100,000 initial capital
     portfolio = MarketOnClosePortfolio(symbol,bars,signals,initial_investment = 100000.0)
     returns = portfolio.backtest_portfolio()
+    #qs.reports.basic(returns)
+        
+    #pf.create_simple_tear_sheet(returns)
     
     # Plot two charts to assess trades and equity curve
     fig = plt.figure()
